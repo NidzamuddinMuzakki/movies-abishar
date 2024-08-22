@@ -4,9 +4,10 @@
 
 # migration goose = GOOSE_DRIVER=mysql GOOSE_DBSTRING="sql12727201:BWkG41eVe1@tcp(sql12.freesqldatabase.com:3306)/sql12727201?parseTime=true" ./goose up
 
-
-
-
+# run = go run main.go
+# architecture repository pattern
+# routes -> middleware(validateToken,panicRecovery) -> handler(bindStruct, Validation) -> service -> repository -> db
+# routes
 #v1.POST("/users/register", r.delivery.GetUsers().CreateUsers)
 #v1.POST("/users/login", r.delivery.GetUsers().LoginUsers)
 #v1.POST("/users/logout", middlewareImpl.AuthJWT(), r.delivery.GetUsers().LogoutUsers)
