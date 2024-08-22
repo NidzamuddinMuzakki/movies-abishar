@@ -37,9 +37,9 @@ func NewRouter(
 	}
 }
 
-// @title          mofi-tnc-service Swagger API
+// @title          movies-abishar Swagger API
 // @version        1.0
-// @description    mofi-tnc-service Swagger API
+// @description    movies-abishar Swagger API
 // @termsOfService http://swagger.io/terms/
 
 // @contact.name  API Support

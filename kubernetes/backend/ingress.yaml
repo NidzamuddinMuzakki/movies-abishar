@@ -1,0 +1,41 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      if ($http_origin ~* "^(https|http)?:\/\/((?:www\.movies-abishar\.com)|(?:.*\.movies-abishar\.com)|(?:.*\.movies-abishar\.id)|(?:.*\.jinny\.id)|(localhost)|(127.0.0.1))") {
+        set $cors "true";
+      }
+      if ($request_method = 'OPTIONS') {
+        set $cors "${cors}options";
+      }
+      if ($cors = "trueoptions") {
+        more_set_headers "Access-Control-Allow-Origin: *";
+        more_set_headers "Access-Control-Allow-Credentials: true";
+        return 204;
+      }
+      if ($cors = "true") {
+        more_set_headers "Access-Control-Allow-Origin: *";
+        more_set_headers "Access-Control-Allow-Credentials: true";
+      }
+      more_set_headers "Access-Control-Allow-Methods: *";
+      more_set_headers "Access-Control-Allow-Headers: *";
+  name: ingress-movies-abishar
+  namespace: movies-abishar
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - movies-abishar.development.movies-abishar.id
+      secretName: sectigo-development-wildcard-movies-abishar-id
+  rules:
+    - host: movies-abishar.development.movies-abishar.id
+      http:
+        paths:
+          - backend:
+              service:
+                name: movies-abishar-svc
+                port:
+                  number: 3000
+            path: /
+            pathType: Prefix
