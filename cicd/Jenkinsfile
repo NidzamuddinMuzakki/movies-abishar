@@ -1,0 +1,511 @@
+@Library('pipeline-library@v3.0') _
+
+def deploy (def consulToken) {
+    getConsul("${consulToken}")
+    updateSecret()
+    //updateCronImage()
+    applyKubernetesManifest()
+    //updateDeploymentImage()
+}
+
+def updateSecret() {
+    try {
+        sh "gcloud container clusters get-credentials ${gkeName} --zone ${zoneGke} --project ${projectName}"
+        sh "kubectl --context ${gkeContext} -n ${namespace} delete secret ${serviceName}-cold-app-secret || true"
+        sh "kubectl --context ${gkeContext} -n ${namespace} delete secret ${serviceName}-hot-app-secret || true"
+        sh "sleep 5"
+        sh "kubectl --context ${gkeContext} -n ${namespace} create secret generic ${serviceName}-cold-app-secret --from-env-file=${serviceName}-env-cold"
+        sh "kubectl --context ${gkeContext} -n ${namespace} create secret generic ${serviceName}-hot-app-secret --from-env-file=${serviceName}-env-hot"
+        currentBuild.result = 'SUCCESS'
+    } catch(e) {
+        notification(
+            slackStatus: "FAILURE",
+            messageColor: "danger",
+            headMessage: "Update Secret to ${resourceEnv} environment"
+        )
+        currentBuild.result = 'FAILURE'
+        throw e
+    } finally {
+        if (currentBuild.result == "FAILURE") {
+            echo "Deployment to ${resourceEnv} environment fail"
+        }
+    }
+}
+
+def getConsul(def consulToken) {
+    try {
+        sh "getConsul.py ${consul}/backend/cold ${consulToken} > ${serviceName}-env-cold"
+        sh "getConsul.py ${consul}/backend/hot ${consulToken} > ${serviceName}-env-hot"
+        currentBuild.result = 'SUCCESS'
+    } catch(e) {
+        notification(
+            slackStatus: "FAILURE",
+            messageColor: "danger",
+            headMessage: "Get Consul ${serviceName} Fail"
+        )
+        currentBuild.result = 'FAILURE'
+        throw e
+    } finally {
+        if (currentBuild.result == "FAILURE") {
+          echo "Get Consul ${serviceName} Fail"
+        }
+    }
+}
+
+def build(def consulToken) {
+    try {
+        env.imageTag = "${versioningCode}-${shortCommitHash}-${BUILD_NUMBER}"
+        withCredentials([
+            file(credentialsId: "jenkinsServiceAccount", variable: 'keyJenkinsServiceAccount')
+        ]) {
+            sh "gcloud auth activate-service-account ${emailJenkinsServiceAccount} --key-file=${keyJenkinsServiceAccount}"
+            sh "gcloud auth configure-docker ${garLocation}"
+            sh "cp /home/jenkins/.ssh/id_rsa id_rsa_nidzam.pem && cp /home/jenkins/.ssh/id_rsa id_rsa"
+            sh "chmod 400 id_rsa_nidzam.pem"
+            sh "getConsul.py ${consul}/backend/cold ${consulToken} > ${serviceName}-env"
+            sh "getConsul.py ${consul}/backend/hot ${consulToken} >> ${serviceName}-env"
+            sh "cp ${serviceName}-env .env"
+            sh "docker build --build-arg SSH_KEY_FILE=id_rsa_nidzam.pem --build-arg GOOSE_DBSTRING=\$(grep GOOSE_DBSTRING .env | cut -d '=' -f2-) -t ${crUri}:${imageTag} -t ${crUri}:${resourceEnv}-latest ."
+            sh "docker push ${crUri}:${imageTag}"
+            sh "docker push ${crUri}:${resourceEnv}-latest"
+        }
+        currentBuild.result = 'SUCCESS'
+    } catch(e) {
+        notification(
+            slackStatus: "FAILURE",
+            messageColor: "danger",
+            headMessage: "Build Image ${serviceName}"
+        )
+        currentBuild.result = 'FAILURE'
+        throw e
+    } finally {
+        if (currentBuild.result == "FAILURE") {
+            echo "Build Image ${serviceName} fail"
+        }
+    }
+}
+
+def updateCronImage() {
+    try {
+        env.cronCheck = sh (
+            script: "kubectl --context ${gkeContext} get cronjobs -n ${namespace} | grep -v NAME | awk '{print \$1}'",
+            returnStdout: true
+        ).trim()
+        if (env.cronCheck == "") {
+            echo "Cron not found"
+        } else {
+            for (String cron : cronCheck.split("\\s+")) {
+                sh "kubectl --context ${gkeContext} set image cronjob/${cron} ${cron}=${crUri}/${namespace}:${imageTag} -n ${namespace}"
+            }
+        }
+    } catch(e) {
+        notification(
+            slackStatus: "FAILURE",
+            messageColor: "danger",
+            headMessage: "Update image cronjobs to ${resourceEnv} environment"
+        )
+        currentBuild.result = 'FAILURE'
+        throw e
+    } finally {
+        if (currentBuild.result == "FAILURE") {
+            echo "Deployment to ${resourceEnv} environment fail"
+        }
+    }
+}
+
+def updateDeploymentImage() {
+    try {
+        env.deploymentCheck = sh (
+            script: "kubectl --context ${gkeContext} get deployment -n ${namespace} | grep -Ev 'primary|NAME' | awk '{print \$1}'",
+            returnStdout: true
+        ).trim()
+        if (env.deploymentCheck == "") {
+            echo "deployment not found"
+        } else {
+            for (String deploymentName : deploymentCheck.split("\\s+")) {
+                sh "kubectl --context ${gkeContext} -n ${namespace} set image deployment/${deploymentName} ${serviceName}-app=${crUri}:${imageTag}"
+                sh "kubectl --context ${gkeContext} -n ${namespace} restart deployment/${deploymentName}"
+            }
+            notification(
+                slackStatus: "SUCCESS",
+                messageColor: "good",
+                headMessage: "Deployment to ${resourceEnv} environment"
+            )
+        }
+    } catch(e) {
+        notification(
+            slackStatus: "FAILURE",
+            messageColor: "danger",
+            headMessage: "Deployment to ${resourceEnv} environment"
+        )
+        currentBuild.result = 'FAILURE'
+        throw e
+    } finally {
+        if (currentBuild.result == "FAILURE") {
+            echo "Deployment to ${resourceEnv} environment fail"
+        }
+    }
+}
+
+def applyKubernetesManifest() {
+    try {
+        sh "sed -i 's|image:.*|image: ${crUri}:${imageTag}|' ${WORKSPACE}/kubernetes/${resourceEnv}/backend/*.yaml"
+        // for debug
+        sh "cd ${WORKSPACE}/kubernetes/${resourceEnv}/backend; for each in *; do cat \$each; echo '---'; done"
+        sh "kubectl --context ${gkeContext} apply -f ${WORKSPACE}/kubernetes/${resourceEnv}/backend -n ${namespace}"
+        notification(
+            slackStatus: "SUCCESS",
+            messageColor: "good",
+            headMessage: "Deployment to ${resourceEnv} environment"
+        )
+    } catch(e) {
+        notification(
+            slackStatus: "FAILURE",
+            messageColor: "danger",
+            headMessage: "Deployment to ${resourceEnv} environment"
+        )
+        currentBuild.result = 'FAILURE'
+        throw e
+    } finally {
+        if (currentBuild.result == "FAILURE") {
+            echo "Deployment to ${resourceEnv} environment fail"
+        }
+    }
+}
+
+pipeline {
+    agent {
+        node {
+            label 'docker-slave-ssh || docker-slave-ssh-01'
+        }
+    }
+    stages {
+        stage('Get Env') {
+            steps {
+                script {
+                    getEnv()
+                }
+            }
+        }
+        stage('Environment Check') {
+            steps {
+                script {
+                    envFilter()
+                }
+            }
+        }
+        stage('Cicd Notification'){
+            when {
+                expression {
+                    currentBuild.result == 'SUCCESS'
+                }
+            }
+            steps {
+                script {
+                    notification(
+                        slackStatus: "STARTED",
+                        messageColor: "#439FE0",
+                        headMessage: "Deployment Status"
+                    )
+                }
+            }
+        }
+        stage ('PR Check') {
+            parallel {
+                stage ("Run Sonarqube") {
+                    when {
+                        expression {
+                            currentBuild.result == "SUCCESS" && env.resourceEnv == "pull_request"
+                        }
+                    }
+                    steps {
+                        withSonarQubeEnv(credentialsId: 'sonarqubeToken', installationName: 'sonarqube') {
+                            script {
+                                runSonarqube()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        stage ("Build Image") {
+            when {
+                expression {
+                    currentBuild.result == 'SUCCESS' && env.resourceEnv != "pull_request"
+                }
+            }
+            steps {
+                script {
+                                    withCredentials([
+                                        string(credentialsId: "consul-prod-token", variable:'consulProdToken'),
+                                        string(credentialsId: "consul-stg-token", variable:'consulStgToken'),
+                                        string(credentialsId: "consul-dev-token", variable: 'consulDevToken')
+                                    ]) {
+                                        if (env.resourceEnv == "production"){
+                                            build("${consulProdToken}")
+                                        }else if (env.resourceEnv == "staging"){
+                                            build("${consulStgToken}")
+                                        }else{
+                                            build("${consulDevToken}")
+                                        }
+                                    }
+                                }
+            }
+        }
+        stage ("Deploy Automation Test") {
+            parallel {
+                stage ("Deployment to Development") {
+                    when {
+                        expression {
+                            currentBuild.result == "SUCCESS" && env.resourceEnv == "development" && env.setAutomation == "true" && env.automationCommand != "false"
+                        }
+                    }
+                    steps {
+                        script {
+                            try {
+                                deploymentTest()
+                            }  catch(e) {
+                                currentBuild.result == "FAILURE"
+                                notification(
+                                    slackStatus: "FAILURE",
+                                    messageColor: "danger",
+                                    headMessage: "Deployment to Automation Environment"
+                                )
+                                throw e
+                            } finally {
+                                if (currentBuild.result == "FAILURE") {
+                                echo 'Deployment to Automation Environment Fail'
+                                }
+                            }
+
+                        }
+                    }
+                }
+                stage ("Deployment to Staging") {
+                    when {
+                        expression {
+                            currentBuild.result == "SUCCESS" && env.resourceEnv == "staging" && env.setAutomation == "true" && env.automationCommand != "false"
+                        }
+                    }
+                    steps {
+                        script {
+                            try {
+                                deploymentTest()
+                            }  catch(e) {
+                                currentBuild.result == "FAILURE"
+                                notification(
+                                    slackStatus: "FAILURE",
+                                    messageColor: "danger",
+                                    headMessage: "Deployment to Automation Environment"
+                                )
+                                throw e
+                            } finally {
+                                if (currentBuild.result == "FAILURE") {
+                                echo 'Deployment to Automation Environment Fail'
+                                }
+                            }
+
+                        }
+                    }
+                }
+                stage ("Deployment to Production") {
+                    when {
+                        expression {
+                            currentBuild.result == "SUCCESS" && env.resourceEnv == "production" && env.setAutomation == "true" && env.automationCommand != "false"
+                        }
+                    }
+                    steps {
+                        script {
+                            try {
+                                deploymentTest()
+                            }  catch(e) {
+                                currentBuild.result == "FAILURE"
+                                notification(
+                                    slackStatus: "FAILURE",
+                                    messageColor: "danger",
+                                    headMessage: "Deployment to Automation Environment"
+                                )
+                                throw e
+                            } finally {
+                                if (currentBuild.result == "FAILURE") {
+                                echo 'Deployment to Automation Environment Fail'
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        stage ("Automation Test (Blocking)") {
+            when {
+                expression {
+                    currentBuild.result == "SUCCESS" && (env.resourceEnv == "staging" || env.resourceEnv == "development" || env.resourceEnv == "production") && env.setAutomation == "true" && env.automationCommand != "false" && env.blockDeploy == "true"
+                }
+            }
+            steps {
+                catchError(buildResult: env.buildResultValue, stageResult: 'FAILURE') {
+                    script {
+                        try {
+                            runTest()
+                        }  catch(e) {
+                            currentBuild.result == "FAILURE"
+                            notification(
+                                slackStatus: "FAILURE",
+                                messageColor: "danger",
+                                headMessage: "Running Automation Test"
+                            )
+                            sh "kubectl scale -n ${deploymentName} deployment/${deploymentName}-${automationTest}-app-deployment --replicas=0"
+                            throw e
+                        } finally {
+                            if (currentBuild.result == "FAILURE") {
+                            echo 'Running Automation Test Fail'
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        stage ("Deployment to Development Environment") {
+            parallel{
+                stage ("Run Deployment") {
+                    when {
+                        expression {
+                            currentBuild.result == "SUCCESS" && env.resourceEnv == "development"
+                        }
+                    }
+                    steps {
+                        script {
+                            withCredentials([
+                                string(credentialsId: "consul-dev-token", variable: 'consulDevToken')
+                            ]) {
+                                deploy ("${consulDevToken}")
+                            }
+                        }
+                    }
+                }
+                stage ("Run Sonarqube") {
+                    when {
+                        expression {
+                            currentBuild.result == "SUCCESS" && env.resourceEnv == "development"
+                        }
+                    }
+                    steps {
+                        withSonarQubeEnv(credentialsId: 'sonarqubeToken', installationName: 'sonarqube') {
+                            script {
+                                runSonarqube()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        stage ("Deployment to Staging Environment") {
+            parallel{
+                stage ("Run Deployment") {
+                    when {
+                        expression {
+                            currentBuild.result == "SUCCESS" && env.resourceEnv == "staging"
+                        }
+                    }
+                    steps {
+                        script {
+                            withCredentials([
+                                string(credentialsId: "consul-stg-token", variable:'consulStgToken')
+                            ]) {
+                                deploy ("${consulStgToken}")
+                            }
+                        }
+                    }
+                }
+                stage ("Run Sonarqube") {
+                    when {
+                        expression {
+                            currentBuild.result == "SUCCESS" && env.resourceEnv == "staging"
+                        }
+                    }
+                    steps {
+                        withSonarQubeEnv(credentialsId: 'sonarqubeToken', installationName: 'sonarqube') {
+                            script {
+                                runSonarqube()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        stage ("Approval") {
+            when {
+                expression {
+                    currentBuild.result == "SUCCESS" && env.resourceEnv == "production"
+                }
+            }
+            steps {
+                script {
+                    approval()
+                }
+            }
+        }
+        stage ("Deployment to Production Environment") {
+            when {
+                expression {
+                    env.doDeploy == "do"
+                }
+            }
+            steps {
+                script {
+                    withCredentials([
+                        string(credentialsId: "consul-prod-token", variable:'consulProdToken')
+                    ]) {
+                        deploy ("${consulProdToken}")
+                    }
+                }
+            }
+        }
+        stage ("Automation Test (Non Blocking)") {
+            when {
+                expression {
+                    currentBuild.result == "SUCCESS" && (env.resourceEnv == "staging" || env.resourceEnv == "development" || env.resourceEnv == "production") && env.setAutomation == "true" && env.automationCommand != "false" && env.blockDeploy == "false"
+                }
+            }
+            steps {
+                script {
+                    try {
+                        runTest()
+                    }  catch(e) {
+                        currentBuild.result == "FAILURE"
+                        notification(
+                            slackStatus: "FAILURE",
+                            messageColor: "danger",
+                            headMessage: "Run Automation Test"
+                        )
+                        sh "kubectl scale -n ${deploymentName} deployment/${deploymentName}-${automationTest}-app-deployment --replicas=0"
+                        throw e
+                    } finally {
+                        if (currentBuild.result == "FAILURE") {
+                        echo 'Run Automation Test Fail'
+                        }
+                    }
+                }
+            }
+        }
+    }
+    post {
+        always {
+            script {
+                if (env.showLogger == "true" && env.mantisBuild == "true") {
+                    sh """
+                        echo "Showing logs"
+                        cd mantis
+                        ls -la
+                        ./mantis-logger download request.json ${serviceName} ${BUILD_NUMBER} ${BRANCH_NAME}
+                        ./mantis-logger download response.json ${serviceName} ${BUILD_NUMBER} ${BRANCH_NAME}
+                    """
+                    sh "cat mantis/artifacts/request.json | jq --color-output"
+                    sh "cat mantis/artifacts/response.json | jq --color-output"
+                    archiveArtifacts artifacts: 'mantis/artifacts/*.*'
+                }
+            }
+            cleanWs()
+       }
+    }
+}
