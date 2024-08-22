@@ -9,9 +9,9 @@
 # architecture repository pattern
 # routes -> middleware(validateToken,panicRecovery) -> handler(bindStruct, Validation) -> service -> repository -> db
 # routes
-#v1.POST("/users/register", r.delivery.GetUsers().CreateUsers)
-#v1.POST("/users/login", r.delivery.GetUsers().LoginUsers)
-#v1.POST("/users/logout", middlewareImpl.AuthJWT(), r.delivery.GetUsers().LogoutUsers)
+# v1.POST("/users/register", r.delivery.GetUsers().CreateUsers)
+# v1.POST("/users/login", r.delivery.GetUsers().LoginUsers)
+# v1.POST("/users/logout", middlewareImpl.AuthJWT(), r.delivery.GetUsers().LogoutUsers)
 
 # v1.GET("/movies/list", middlewareImpl.AuthJWT(), r.delivery.GetMovies().GetListMovies)
 # v1.POST("/movies", middlewareImpl.AuthJWT(), r.delivery.GetMovies().CreateMovies)
