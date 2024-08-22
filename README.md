@@ -5,6 +5,7 @@
 # migration goose = GOOSE_DRIVER=mysql GOOSE_DBSTRING="sql12727201:BWkG41eVe1@tcp(sql12.freesqldatabase.com:3306)/sql12727201?parseTime=true" ./goose up
 
 # run = go run main.go
+# akun admin -> username : admin , password : 123
 # architecture repository pattern
 # routes -> middleware(validateToken,panicRecovery) -> handler(bindStruct, Validation) -> service -> repository -> db
 # routes
