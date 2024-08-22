@@ -1,0 +1,45 @@
+{
+	"appEnv": "development",
+    "appName": "movies-abishar",
+    "appPort": "8080",
+    "appTimezone": "Asia/Jakarta",
+    "appValidationKey": "NidzamAbisharMoviesSvc2023",
+    "appSecretKey": "NidzamAbisharMoviesSvc2023",
+    "jwtSecretKey": "NidzamAbisharMoviesSvc2023",
+    "appHost":"http://localhost:8080",
+    "TIMEZONE": "Asia/Jakarta",
+  
+    "GOOSE_DBSTRING":"sql12727201:BWkG41eVe1@tcp(sql12.freesqldatabase.com:3306)/sql12727201?parseTime=true",
+    "GOOSE_DRIVER":"mysql",
+
+ 
+
+    "dbMysqlMasterDriver": "mysql",
+    "dbMysqlMasterHost": "sql12.freesqldatabase.com",
+    "dbMysqlMasterPort": "3306",
+    "dbMysqlMasterDbName": "sql12727201",
+    "dbMysqlMasterUser": "sql12727201",
+    "dbMysqlMasterPassword": "BWkG41eVe1",
+    "dbMysqlMasterSslMode": "disable",
+    "dbMysqlMasterMaxOpenConnections": 10,
+    "dbMysqlMasterMaxLifeTimeConnection": 60,
+    "dbMysqlMasterMaxIdleConnections": 10,
+    "dbMysqlMasterMaxIdleTimeConnection": 30,
+
+    "dbMysqlSlaveDriver": "mysql",
+    "dbMysqlSlaveHost": "sql12.freesqldatabase.com",
+    "dbMysqlSlavePort": "3306",
+    "dbMysqlSlaveDbName": "sql12727201",
+    "dbMysqlSlaveUser": "sql12727201",
+    "dbMysqlSlavePassword": "BWkG41eVe1",
+    "dbMysqlSlaveSslMode": "disable",
+    "dbMysqlSlaveMaxOpenConnections": 10,
+    "dbMysqlSlaveMaxLifeTimeConnection": 60,
+    "dbMysqlSlaveMaxIdleConnections": 10,
+    "dbMysqlSlaveMaxIdleTimeConnection": 30,
+
+
+    "redisHost":"redis-15682.c334.asia-southeast2-1.gce.redns.redis-cloud.com:15682",
+    "redisUsername":"default",
+    "redisPassword":"Iy4Oy6iSlokCdsNNpvDCaWrFvWJ76OWb"
+}

@@ -3,6 +3,7 @@ package registry
 import (
 	"sync"
 
+	"github.com/NidzamuddinMuzakki/movies-abishar/go-lib-common/cache"
 	"github.com/NidzamuddinMuzakki/movies-abishar/go-lib-common/middleware/gin/panic_recovery"
 
 	"github.com/go-playground/validator/v10"
@@ -14,7 +15,7 @@ type IRegistry interface {
 	// GetGCS() gcp.GCSClient
 
 	// GetSlack() slack.ISlack
-
+	GetCache() cache.Cacher
 	// GetAuthMiddleware() auth.IMiddlewareAuth
 	GetPanicRecoveryMiddleware() panic_recovery.IMiddlewarePanicRecovery
 	// GetTraceMiddleware() tracer.IMiddlewareTracer
@@ -44,7 +45,7 @@ type registry struct {
 	// limiterMiddleware       limiter.IMiddlewareLimiter
 	// time                    time.TimeItf
 	validator *validator.Validate
-	// cache                   cache.Cacher
+	cache     cache.Cacher
 	// encryption              encryption.IEncryption
 	// exporterExcel           exporter.Exporter
 	// exporterCSV             exporter.Exporter
@@ -152,14 +153,14 @@ func WithValidator(validator *validator.Validate) Option {
 	}
 }
 
-// func WithCache(cache cache.Cacher) Option {
-// 	return func(s *registry) {
-// 		s.mu.Lock()
-// 		defer s.mu.Unlock()
+func WithCache(cache cache.Cacher) Option {
+	return func(s *registry) {
+		s.mu.Lock()
+		defer s.mu.Unlock()
 
-// 		s.cache = cache
-// 	}
-// }
+		s.cache = cache
+	}
+}
 
 // func WithEncryption(encryption encryption.IEncryption) Option {
 // 	return func(s *registry) {
@@ -276,9 +277,9 @@ func (r *registry) GetValidator() *validator.Validate {
 	return r.validator
 }
 
-// func (r *registry) GetCache() cache.Cacher {
-// 	return r.cache
-// }
+func (r *registry) GetCache() cache.Cacher {
+	return r.cache
+}
 
 // func (r *registry) GetEncryption() encryption.IEncryption {
 // 	return r.encryption
