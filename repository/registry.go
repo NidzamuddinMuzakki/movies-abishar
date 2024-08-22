@@ -6,21 +6,25 @@ import "github.com/NidzamuddinMuzakki/movies-abishar/common/util"
 
 type IRegistry interface {
 	GetUsersRepository() IUsersRepository
+	GetMoviesRepository() IMoviesRepository
 	GetUtilTx() *util.TransactionRunner
 }
 
 type Registry struct {
-	usersRepository IUsersRepository
-	masterUtilTx    *util.TransactionRunner
+	moviesRepository IMoviesRepository
+	usersRepository  IUsersRepository
+	masterUtilTx     *util.TransactionRunner
 }
 
 func NewRegistryRepository(
 	masterUtilTx *util.TransactionRunner,
 	usersRepository IUsersRepository,
+	moviesRepository IMoviesRepository,
 ) *Registry {
 	return &Registry{
-		masterUtilTx:    masterUtilTx,
-		usersRepository: usersRepository,
+		masterUtilTx:     masterUtilTx,
+		usersRepository:  usersRepository,
+		moviesRepository: moviesRepository,
 	}
 }
 
@@ -30,4 +34,8 @@ func (r Registry) GetUtilTx() *util.TransactionRunner {
 
 func (r Registry) GetUsersRepository() IUsersRepository {
 	return r.usersRepository
+}
+
+func (r Registry) GetMoviesRepository() IMoviesRepository {
+	return r.moviesRepository
 }

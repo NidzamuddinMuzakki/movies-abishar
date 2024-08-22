@@ -9,17 +9,20 @@ import (
 type IRegistry interface {
 	GetHealth() health.IHealth
 	GetUsersService() IUsersService
+	GetMoviesService() IMoviesService
 }
 
 type Registry struct {
-	health       health.IHealth
-	usersService IUsersService
+	health        health.IHealth
+	usersService  IUsersService
+	moviesService IMoviesService
 }
 
-func NewRegistry(health health.IHealth, usersService IUsersService) *Registry {
+func NewRegistry(health health.IHealth, usersService IUsersService, moviesService IMoviesService) *Registry {
 	return &Registry{
-		health:       health,
-		usersService: usersService,
+		health:        health,
+		usersService:  usersService,
+		moviesService: moviesService,
 	}
 }
 
@@ -29,4 +32,8 @@ func (r *Registry) GetHealth() health.IHealth {
 
 func (r *Registry) GetUsersService() IUsersService {
 	return r.usersService
+}
+
+func (r *Registry) GetMoviesService() IMoviesService {
+	return r.moviesService
 }

@@ -133,23 +133,27 @@ func main() {
 	// Start Repositories //
 	masterUtilTx := util.NewTransactionRunner(master)
 	usersRepository := repository.NewUsersRepository(common, master, slave)
+	moviesRepository := repository.NewMoviesRepository(common, master, slave)
 
-	repoRegistry := repository.NewRegistryRepository(masterUtilTx, usersRepository)
+	repoRegistry := repository.NewRegistryRepository(masterUtilTx, usersRepository, moviesRepository)
 	// End Repositories //
 
 	// Start Services //
 	usersService := service.NewUsersService(common, repoRegistry)
+	moviesService := service.NewMoviesService(common, repoRegistry)
 	healthService := serviceHealth.NewHealth(master, slave)
 	serviceRegistry := service.NewRegistry(
 		healthService,
 		usersService,
+		moviesService,
 	)
 	// End Deliveries //
 
 	// Start Deliveries //
 	healthDelivery := httpDeliveryHealth.NewHealth(common, healthService)
 	usersDelivery := httpDelivery.NewUsers(common, serviceRegistry)
-	registryDelivery := httpDelivery.NewRegistry(healthDelivery, usersDelivery)
+	moviesDelivery := httpDelivery.NewMovies(common, serviceRegistry)
+	registryDelivery := httpDelivery.NewRegistry(healthDelivery, usersDelivery, moviesDelivery)
 	// End Deliveries //
 
 	//

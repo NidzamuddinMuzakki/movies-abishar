@@ -1,0 +1,553 @@
+{
+	"info": {
+		"_postman_id": "5e39eedf-7cf0-46da-9bc6-71ddb3f3b82b",
+		"name": "Abishar",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "27360244"
+	},
+	"item": [
+		{
+			"name": "Register",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"nidzam21\",\r\n    \"password\": \"123\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/v1/users/register",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"v1",
+						"users",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"nidzam21\",\r\n    \"password\": \"123\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/v1/users/login",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"v1",
+						"users",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Logout",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjQzMjM2ODgsInN1YiI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInV1aWQiOiJjZGMyYzFkMC0zNTc5LTRkNmMtOWRhZC0yOWRmNTZkZDk0MDIifQ.n2i8gwSTFKlR2ToLqYE6Uky0XbURXw-Fx3PZFKimqq5cpG39pAt3PbXSpIOzAIzkQijkNOFoCoXpqB9V8y2ZIA",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/v1/users/logout",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"v1",
+						"users",
+						"logout"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Movies",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjQzMzE4MDAsInN1YiI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInV1aWQiOiIzMDY4ZTc0NC05YWIyLTQyNmEtYjlmNS0xYTU4NTFjYWJlYmMifQ.jNffFD0YCkodTEj8gMIaNVlRgkvx2TNWUDj4b6z9lUV16pyNWjf8YweV9fCeqls5aqZAs-MUTOkesU8Kjfa7wA",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "title",
+							"value": "nidzam5",
+							"type": "text"
+						},
+						{
+							"key": "description",
+							"value": "nidzam",
+							"type": "text"
+						},
+						{
+							"key": "duration",
+							"value": "3600",
+							"description": "in second",
+							"type": "text"
+						},
+						{
+							"key": "artists",
+							"value": "nidzam,nidzam2",
+							"type": "text"
+						},
+						{
+							"key": "genres",
+							"value": "comedy",
+							"type": "text"
+						},
+						{
+							"key": "url_watch",
+							"type": "file",
+							"src": "/C:/Users/nidza/Desktop/358556-20220926130428-PHxDvX.jpg"
+						}
+					]
+				},
+				"url": {
+					"raw": "localhost:8080/v1/movies",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"v1",
+						"movies"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Movies",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjQzNDE4MDcsInN1YiI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInV1aWQiOiJlYmI4NzQ3OC0wM2ZkLTRiNTEtOWQzYy00NDNmMDU2YTc0MjAifQ.Plq3OMqeV7UFJdJkRlNAEAyy91JiOaQfRQVJUcoQk8NdiJVBnRiwXGw3C7y8Mxc3iGzjBS-H45Ssz839vbP2KA",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "title",
+							"value": "nidzam5",
+							"type": "text"
+						},
+						{
+							"key": "description",
+							"value": "nidzam",
+							"type": "text"
+						},
+						{
+							"key": "duration",
+							"value": "3600",
+							"description": "in second",
+							"type": "text"
+						},
+						{
+							"key": "artists",
+							"value": "nidzam,nidzam2",
+							"type": "text"
+						},
+						{
+							"key": "genres",
+							"value": "romance,comedy",
+							"type": "text"
+						},
+						{
+							"key": "url_watch",
+							"type": "file",
+							"src": "/C:/Users/nidza/Desktop/358556-20220926130428-PHxDvX.jpg",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "localhost:8080/v1/movies/:id",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"v1",
+						"movies",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "14"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Movies List",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjQzNDE4MDcsInN1YiI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInV1aWQiOiJlYmI4NzQ3OC0wM2ZkLTRiNTEtOWQzYy00NDNmMDU2YTc0MjAifQ.Plq3OMqeV7UFJdJkRlNAEAyy91JiOaQfRQVJUcoQk8NdiJVBnRiwXGw3C7y8Mxc3iGzjBS-H45Ssz839vbP2KA",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/v1/movies/list?limit=10&offset=1&search=nidzam2",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"v1",
+						"movies",
+						"list"
+					],
+					"query": [
+						{
+							"key": "limit",
+							"value": "10"
+						},
+						{
+							"key": "offset",
+							"value": "1"
+						},
+						{
+							"key": "search",
+							"value": "nidzam2"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DetailMovie",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjQzMzE4MDAsInN1YiI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInV1aWQiOiIzMDY4ZTc0NC05YWIyLTQyNmEtYjlmNS0xYTU4NTFjYWJlYmMifQ.jNffFD0YCkodTEj8gMIaNVlRgkvx2TNWUDj4b6z9lUV16pyNWjf8YweV9fCeqls5aqZAs-MUTOkesU8Kjfa7wA",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/v1/movies/:id",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"v1",
+						"movies",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "13"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DetailMovieUsers",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjQzMzkwMjYsInN1YiI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInV1aWQiOiI3YzNlYTYwYi03ZGE5LTQ0MzMtOTM0OS1jZWY3Nzg5MTZkMWYifQ.e3NcFFCKN8YunQUeSEDJj0fMqbSh_6EuTYpxRT_a3d8sWZAWbcgrtzTEje8YTiU_5vYtNP8ADlPspvx7nZV1Dw",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/v1/movies/users/:id/:duration",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"v1",
+						"movies",
+						"users",
+						":id",
+						":duration"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "14"
+						},
+						{
+							"key": "duration",
+							"value": "30",
+							"description": "in second"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "VoteMovies",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjQzNDMyMzQsInN1YiI6MSwidXNlcm5hbWUiOiJuaWR6YW0yMSIsInV1aWQiOiI4ODNlMDYyNi01YWRmLTQ3NjQtODAzNi02YWMyODZiNjYyOWMifQ.-hTEvGJRZHt3jp-Pw5EtOVyQY_8bUnPcwyl4Q2UsYM9WClfemOjLMId4b8hDv0P8VBfXLy33Ekk50y1vhjjc9w",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/v1/movies/vote/:id",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"v1",
+						"movies",
+						"vote",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "14"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UnVoteMovies",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjQzNDMyMzQsInN1YiI6MSwidXNlcm5hbWUiOiJuaWR6YW0yMSIsInV1aWQiOiI4ODNlMDYyNi01YWRmLTQ3NjQtODAzNi02YWMyODZiNjYyOWMifQ.-hTEvGJRZHt3jp-Pw5EtOVyQY_8bUnPcwyl4Q2UsYM9WClfemOjLMId4b8hDv0P8VBfXLy33Ekk50y1vhjjc9w",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/v1/movies/unvote/:id",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"v1",
+						"movies",
+						"unvote",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "14"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "MostViewedMovies",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjQzMzkwMjYsInN1YiI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInV1aWQiOiI3YzNlYTYwYi03ZGE5LTQ0MzMtOTM0OS1jZWY3Nzg5MTZkMWYifQ.e3NcFFCKN8YunQUeSEDJj0fMqbSh_6EuTYpxRT_a3d8sWZAWbcgrtzTEje8YTiU_5vYtNP8ADlPspvx7nZV1Dw",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/v1/movies/most-viewed-movies",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"v1",
+						"movies",
+						"most-viewed-movies"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "MostVoteMovies",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjQzNDQ1MjEsInN1YiI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInV1aWQiOiIzZWIyNmY3My00NWM0LTQ4NDktOTc1MC0xMmQ3NjEwZWQyMWMifQ.IKYMNTui7Nw5IgbIWNE1F9JwgC7MY6FRZiAS5OKWoCgNKz4srPxig14k5_wRh4ccqrKfGYh4iYN-iyUzUQr0mg",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/v1/movies/most-vote-movies",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"v1",
+						"movies",
+						"most-vote-movies"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "MostViewedGenre",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjQzMzkwMjYsInN1YiI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInV1aWQiOiI3YzNlYTYwYi03ZGE5LTQ0MzMtOTM0OS1jZWY3Nzg5MTZkMWYifQ.e3NcFFCKN8YunQUeSEDJj0fMqbSh_6EuTYpxRT_a3d8sWZAWbcgrtzTEje8YTiU_5vYtNP8ADlPspvx7nZV1Dw",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/v1/movies/most-viewed-genre",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"v1",
+						"movies",
+						"most-viewed-genre"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ListVoteUsersMovies",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjQzNDMyMzQsInN1YiI6MSwidXNlcm5hbWUiOiJuaWR6YW0yMSIsInV1aWQiOiI4ODNlMDYyNi01YWRmLTQ3NjQtODAzNi02YWMyODZiNjYyOWMifQ.-hTEvGJRZHt3jp-Pw5EtOVyQY_8bUnPcwyl4Q2UsYM9WClfemOjLMId4b8hDv0P8VBfXLy33Ekk50y1vhjjc9w",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/v1/movies/vote-users",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"v1",
+						"movies",
+						"vote-users"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

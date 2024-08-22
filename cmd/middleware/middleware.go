@@ -69,7 +69,8 @@ func (m *middleware) AuthJWT() gin.HandlerFunc {
 		if err != nil {
 			// fmt.Println(err, "errr NIdzam")
 			if err.Error() != "redis: nil" {
-				c.AbortWithStatusJSON(response.InternalServerError(ctx).ToHTTPCodeAndMap())
+				c.JSON(http.StatusInternalServerError, "please try again")
+				c.AbortWithStatus(http.StatusInternalServerError)
 				return
 			}
 		} else {

@@ -15,6 +15,7 @@ import (
 type IUsersRepository interface {
 	CreateUsers(ctx context.Context, tx *sqlx.Tx, payload model.UsersModel) (id int64, err error)
 	LoginUsers(ctx context.Context, payload model.UsersModel) (result *model.UsersModel, err error)
+	GetUsersByUsername(ctx context.Context, username string) (result *model.UsersModel, err error)
 }
 
 type users struct {
@@ -61,7 +62,21 @@ func (r users) CreateUsers(ctx context.Context, tx *sqlx.Tx, data model.UsersMod
 
 	return intss, nil
 }
+func (r users) GetUsersByUsername(ctx context.Context, username string) (result *model.UsersModel, err error) {
+	var (
+		it model.UsersModel
+	)
 
+	selectQuery := "select id,username, password from users where username = ?  "
+
+	err = commonDs.Exec(ctx, r.master, commonDs.NewStatement(&it, selectQuery, username))
+	if err != nil {
+		return nil, err
+	}
+
+	return &it, nil
+
+}
 func (r users) LoginUsers(ctx context.Context, data model.UsersModel) (result *model.UsersModel, err error) {
 	var (
 		it model.UsersModel
